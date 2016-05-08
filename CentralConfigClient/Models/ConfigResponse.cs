@@ -3,7 +3,7 @@
 namespace CentralConfigClient.Models
 {
     [DataContract]
-    public class ConfigResponse
+    public class ConfigResponse<T>
     {
         /// <summary>
         /// The response HTTP code status
@@ -23,7 +23,7 @@ namespace CentralConfigClient.Models
         /// The response data (if any)
         /// </summary>
         [DataMember(Name = "data")]
-        public object Data
+        public T Data
         { get; set; }
     }
 }

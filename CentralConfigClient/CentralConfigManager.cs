@@ -41,13 +41,28 @@ namespace CentralConfigClient
         /// Get a list of applications
         /// </summary>
         /// <returns></returns>
-        public async Task<ConfigResponse> GetAllApplications()
+        public async Task<ConfigResponse<List<string>>> GetAllApplications()
         {
             //  Construct the url:
             string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "applications/getall");
 
             //  Get the list of episodes
-            var result = await MakeAPICall<ConfigResponse>(apiUrl);
+            var result = await MakeAPICall<ConfigResponse<List<string>>>(apiUrl);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get a list of applications
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ConfigResponse<List<ConfigItem>>> GetAllConfigItems()
+        {
+            //  Construct the url:
+            string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/getall");
+
+            //  Get the list of episodes
+            var result = await MakeAPICall<ConfigResponse<List<ConfigItem>>>(apiUrl);
 
             return result;
         }

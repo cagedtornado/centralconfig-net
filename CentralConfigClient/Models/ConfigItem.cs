@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace CentralConfigClient.Models
@@ -42,10 +43,33 @@ namespace CentralConfigClient.Models
         { get; set; }
 
         /// <summary>
-        /// The last updated time for the config item
+        /// The last updated time for the config item 
+        /// (raw and unformatted)
         /// </summary>
         [DataMember(Name = "updated")]
-        public DateTime LastUpdated
+        public string LastUpdatedRaw
         { get; set; }
+
+
+        public DateTime LastUpdated
+        {
+            get
+            {
+                DateTime retval = DateTime.MinValue;
+                
+                try
+                {
+                    //  Attempt to parse the LastUpdated date:
+                    retval = DateTime.ParseExact(this.LastUpdatedRaw,
+                                       "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                                       CultureInfo.InvariantCulture,
+                                       DateTimeStyles.AssumeUniversal |
+                                       DateTimeStyles.AdjustToUniversal);
+                }
+                catch { }
+                
+                return retval;
+            }
+        }
     }
 }
