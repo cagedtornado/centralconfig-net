@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
@@ -17,6 +16,8 @@ namespace CentralConfigClient
     /// </summary>
     public class CentralConfigManager
     {
+        #region Properties and private members
+
         /// <summary>
         /// The service url template
         /// </summary>
@@ -47,6 +48,10 @@ namespace CentralConfigClient
             }
         }
 
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Creates a central config manager with the given server endpoint url
         /// </summary>
@@ -67,7 +72,9 @@ namespace CentralConfigClient
             Uri uri = new Uri(serverUrl);
             _baseServiceUrl = uri.AbsoluteUri;
             _hostname = machineName;
-        }
+        } 
+
+        #endregion
 
         /// <summary>
         /// Get a list of applications
@@ -85,10 +92,10 @@ namespace CentralConfigClient
         }
 
         /// <summary>
-        /// Get a list of applications
+        /// Get a list of all config items
         /// </summary>
         /// <returns></returns>
-        public async Task<ConfigResponse<List<ConfigItem>>> GetAllConfigItems()
+        public async Task<ConfigResponse<List<ConfigItem>>> GetAll()
         {
             //  Construct the url:
             string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/getall");
@@ -105,13 +112,13 @@ namespace CentralConfigClient
         /// <param name="application"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public async Task<ConfigResponse<ConfigItem>> GetConfigItem(string application, string name)
+        public async Task<ConfigResponse<ConfigItem>> Get(string application, string name)
         {
             //  Construct the url:
             string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/get");
 
             //  Construct the post body:
-            string postBody = ToJSON<ConfigItem>(new ConfigItem()
+            string postBody = ToJSON(new ConfigItem()
             {
                 Name = name,
                 Application = application,

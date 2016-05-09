@@ -22,11 +22,11 @@ namespace CentralConfigClient.Tests
         public void GetAllApplications_ReturnsApplications()
         {
             //  Arrange
-            CentralConfigManager mgr = new CentralConfigManager(_serviceUrl);
+            CentralConfigManager config = new CentralConfigManager(_serviceUrl);
             List<string> retval = new List<string>();
 
             //  Act
-            retval = mgr.GetAllApplications().Result.Data;
+            retval = config.GetAllApplications().Result.Data;
 
             //  Assert
             Assert.IsTrue(retval.Any());
@@ -37,11 +37,11 @@ namespace CentralConfigClient.Tests
         public void GetAllConfigItems_ReturnsConfigItems()
         {
             //  Arrange
-            CentralConfigManager mgr = new CentralConfigManager(_serviceUrl);
+            CentralConfigManager config = new CentralConfigManager(_serviceUrl);
             List<ConfigItem> retval = new List<ConfigItem>();
 
             //  Act
-            retval = mgr.GetAllConfigItems().Result.Data;
+            retval = config.GetAll().Result.Data;
 
             //  Assert
             Assert.IsTrue(retval.Any());
@@ -52,13 +52,13 @@ namespace CentralConfigClient.Tests
         public void GetConfigItem_ValidParameters_ReturnsConfigItem()
         {
             //  Arrange
-            CentralConfigManager mgr = new CentralConfigManager(_serviceUrl);
+            CentralConfigManager config = new CentralConfigManager(_serviceUrl);
             ConfigItem retval = new ConfigItem();
             string application = "Formbuilder";
             string configName = "AnotherItem";
 
             //  Act
-            retval = mgr.GetConfigItem(application, configName).Result.Data;
+            retval = config.Get(application, configName).Result.Data;
 
             //  Assert
             Assert.AreEqual<string>(configName, retval.Name);
