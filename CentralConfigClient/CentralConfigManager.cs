@@ -92,7 +92,7 @@ namespace CentralConfigClient
         }
 
         /// <summary>
-        /// Get a list of all config items
+        /// Get a list of all config items for all applications
         /// </summary>
         /// <returns></returns>
         public async Task<ConfigResponse<List<ConfigItem>>> GetAll()
@@ -107,10 +107,32 @@ namespace CentralConfigClient
         }
 
         /// <summary>
-        /// Get a single config item
+        /// Get a list of all config items for the given application (and the default app)
         /// </summary>
         /// <param name="application"></param>
-        /// <param name="name"></param>
+        /// <returns></returns>
+        public async Task<ConfigResponse<List<ConfigItem>>> GetAll(string application)
+        {
+            //  Construct the url:
+            string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/getallforapp");
+
+            //  Construct the post body:
+            string postBody = ToJSON(new ConfigItem()
+            {
+                Application = application
+            });
+
+            //  Get the list of config items
+            var result = await MakeAPICall<ConfigResponse<List<ConfigItem>>>(apiUrl, postBody);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get a single config item
+        /// </summary>
+        /// <param name="application">The application to get configuration information for</param>
+        /// <param name="name">The configuration key to get information for</param>
         /// <returns></returns>
         public async Task<ConfigResponse<ConfigItem>> Get(string application, string name)
         {
@@ -124,6 +146,44 @@ namespace CentralConfigClient
                 Application = application,
                 Machine = this.HostName
             });
+
+            //  Get a config item
+            var result = await MakeAPICall<ConfigResponse<ConfigItem>>(apiUrl, postBody);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Set a config item
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public async Task<ConfigResponse<ConfigItem>> Set(ConfigItem data)
+        {
+            //  Construct the url:
+            string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/set");
+
+            //  Construct the post body:
+            string postBody = ToJSON(data);
+
+            //  Get a config item
+            var result = await MakeAPICall<ConfigResponse<ConfigItem>>(apiUrl, postBody);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Remove a config item
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public async Task<ConfigResponse<ConfigItem>> Remove(ConfigItem data)
+        {
+            //  Construct the url:
+            string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/remove");
+
+            //  Construct the post body:
+            string postBody = ToJSON(data);
 
             //  Get a config item
             var result = await MakeAPICall<ConfigResponse<ConfigItem>>(apiUrl, postBody);

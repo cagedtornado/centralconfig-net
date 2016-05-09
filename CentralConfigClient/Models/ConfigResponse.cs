@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Net;
+using System.Runtime.Serialization;
 
 namespace CentralConfigClient.Models
 {
@@ -9,7 +10,7 @@ namespace CentralConfigClient.Models
         /// The response HTTP code status
         /// </summary>
         [DataMember(Name = "status")]
-        public int Status
+        public HttpStatusCode Status
         { get; set; }
 
         /// <summary>

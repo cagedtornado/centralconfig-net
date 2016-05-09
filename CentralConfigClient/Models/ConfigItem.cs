@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Xml;
 
 namespace CentralConfigClient.Models
 {
@@ -11,7 +12,7 @@ namespace CentralConfigClient.Models
         /// Unique id for the config item
         /// </summary>
         [DataMember(Name = "id", EmitDefaultValue = false)]
-        public int Id
+        public long Id
         { get; set; }
 
         /// <summary>
@@ -57,30 +58,12 @@ namespace CentralConfigClient.Models
             {
                 DateTime retval = DateTime.MinValue;
 
-                //  Attempt to parse the LastUpdated date:
+                //  Attempt to parse the LastUpdated date (in RFC 3339 format):
                 try
-                {                    
-                    retval = DateTime.ParseExact(this.LastUpdatedRaw,
-                                       "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                                       CultureInfo.InvariantCulture,
-                                       DateTimeStyles.AssumeUniversal |
-                                       DateTimeStyles.AdjustToUniversal);
+                {
+                    retval = XmlConvert.ToDateTime(this.LastUpdatedRaw, XmlDateTimeSerializationMode.Unspecified);
                 }
                 catch { }
-
-                //  Attempt to parse the LastUpdated date with milliseconds:
-                if(retval == DateTime.MinValue)
-                {
-                    try
-                    {
-                        retval = DateTime.ParseExact(this.LastUpdatedRaw,
-                                           "yyyy-MM-dd'T'HH:mm:ss.ff'Z'",
-                                           CultureInfo.InvariantCulture,
-                                           DateTimeStyles.AssumeUniversal |
-                                           DateTimeStyles.AdjustToUniversal);
-                    }
-                    catch { }
-                }
                 
                 return retval;
             }
