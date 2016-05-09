@@ -15,7 +15,7 @@ namespace CentralConfigClient.Tests
         public void Setup_Tests()
         {
             //  Set this to the base url for your centralconfig service
-            _serviceUrl = "https://chile.lan:3800";
+            _serviceUrl = Environment.GetEnvironmentVariable("centralconfig_test_endpoint");
         }
 
         [TestMethod]
@@ -46,6 +46,24 @@ namespace CentralConfigClient.Tests
             //  Assert
             Assert.IsTrue(retval.Any());
             Assert.AreNotEqual<DateTime>(DateTime.MinValue, retval[0].LastUpdated);
+        }
+
+        [TestMethod]
+        public void GetConfigItem_ValidParameters_ReturnsConfigItem()
+        {
+            //  Arrange
+            CentralConfigManager mgr = new CentralConfigManager(_serviceUrl);
+            ConfigItem retval = new ConfigItem();
+            string application = "Formbuilder";
+            string configName = "AnotherItem";
+
+            //  Act
+            retval = mgr.GetConfigItem(application, configName).Result.Data;
+
+            //  Assert
+            Assert.AreEqual<string>(configName, retval.Name);
+            Assert.AreEqual<string>(application, retval.Application);
+            Assert.AreEqual<string>("Test", retval.Value);
         }
     }
 }

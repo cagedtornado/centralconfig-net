@@ -10,7 +10,7 @@ namespace CentralConfigClient.Models
         /// <summary>
         /// Unique id for the config item
         /// </summary>
-        [DataMember(Name = "id")]
+        [DataMember(Name = "id", EmitDefaultValue = false)]
         public int Id
         { get; set; }
 
@@ -38,7 +38,7 @@ namespace CentralConfigClient.Models
         /// <summary>
         /// The config item value
         /// </summary>
-        [DataMember(Name = "value")]
+        [DataMember(Name = "value", EmitDefaultValue = false)]
         public string Value
         { get; set; }
 
@@ -46,7 +46,7 @@ namespace CentralConfigClient.Models
         /// The last updated time for the config item 
         /// (raw and unformatted)
         /// </summary>
-        [DataMember(Name = "updated")]
+        [DataMember(Name = "updated", EmitDefaultValue = false)]
         public string LastUpdatedRaw
         { get; set; }
 
@@ -56,10 +56,10 @@ namespace CentralConfigClient.Models
             get
             {
                 DateTime retval = DateTime.MinValue;
-                
+
+                //  Attempt to parse the LastUpdated date:
                 try
-                {
-                    //  Attempt to parse the LastUpdated date:
+                {                    
                     retval = DateTime.ParseExact(this.LastUpdatedRaw,
                                        "yyyy-MM-dd'T'HH:mm:ss'Z'",
                                        CultureInfo.InvariantCulture,
@@ -67,6 +67,20 @@ namespace CentralConfigClient.Models
                                        DateTimeStyles.AdjustToUniversal);
                 }
                 catch { }
+
+                //  Attempt to parse the LastUpdated date with milliseconds:
+                if(retval == DateTime.MinValue)
+                {
+                    try
+                    {
+                        retval = DateTime.ParseExact(this.LastUpdatedRaw,
+                                           "yyyy-MM-dd'T'HH:mm:ss.ff'Z'",
+                                           CultureInfo.InvariantCulture,
+                                           DateTimeStyles.AssumeUniversal |
+                                           DateTimeStyles.AdjustToUniversal);
+                    }
+                    catch { }
+                }
                 
                 return retval;
             }
