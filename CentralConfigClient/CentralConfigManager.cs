@@ -27,6 +27,26 @@ namespace CentralConfigClient
         /// </summary>
         private string _baseServiceUrl = string.Empty;
 
+
+        private string _hostname = string.Empty;
+
+        /// <summary>
+        /// The hostname for the current machine
+        /// </summary>
+        public string HostName
+        {
+            get
+            {
+                if(_hostname == string.Empty)
+                {
+                    //  Lookup the current hostname
+                    _hostname = Environment.MachineName;
+                }
+
+                return _hostname;
+            }
+        }
+
         /// <summary>
         /// Creates a central config manager with the given server endpoint url
         /// </summary>
@@ -38,6 +58,18 @@ namespace CentralConfigClient
         }
 
         /// <summary>
+        /// Creates a central config manager with the given server endpoint and machine name
+        /// </summary>
+        /// <param name="serverUrl"></param>
+        /// <param name="machineName"></param>
+        public CentralConfigManager(string serverUrl, string machineName)
+        {
+            Uri uri = new Uri(serverUrl);
+            _baseServiceUrl = uri.AbsoluteUri;
+            _hostname = machineName;
+        }
+
+        /// <summary>
         /// Get a list of applications
         /// </summary>
         /// <returns></returns>
@@ -46,7 +78,7 @@ namespace CentralConfigClient
             //  Construct the url:
             string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "applications/getall");
 
-            //  Get the list of episodes
+            //  Get the list of applications
             var result = await MakeAPICall<ConfigResponse<List<string>>>(apiUrl);
 
             return result;
@@ -61,8 +93,33 @@ namespace CentralConfigClient
             //  Construct the url:
             string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/getall");
 
-            //  Get the list of episodes
+            //  Get the list of config items
             var result = await MakeAPICall<ConfigResponse<List<ConfigItem>>>(apiUrl);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get a single config item
+        /// </summary>
+        /// <param name="application"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public async Task<ConfigResponse<ConfigItem>> GetConfigItem(string application, string name)
+        {
+            //  Construct the url:
+            string apiUrl = string.Format(_serviceUrlTemplate, _baseServiceUrl, "config/get");
+
+            //  Construct the post body:
+            string postBody = ToJSON<ConfigItem>(new ConfigItem()
+            {
+                Name = name,
+                Application = application,
+                Machine = this.HostName
+            });
+
+            //  Get a config item
+            var result = await MakeAPICall<ConfigResponse<ConfigItem>>(apiUrl, postBody);
 
             return result;
         }
@@ -99,6 +156,23 @@ namespace CentralConfigClient
             {
                 var serializer = new DataContractJsonSerializer(typeof(T));
                 return (T)serializer.ReadObject(stream);
+            }
+        }
+
+        /// <summary>
+        /// Serialize the passed object (of type T) to a JSON string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objItem"></param>
+        /// <returns></returns>
+        private string ToJSON<T>(T objData)
+        {
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T));
+
+            using(MemoryStream ms = new MemoryStream())
+            {
+                serializer.WriteObject(ms, objData);
+                return Encoding.UTF8.GetString(ms.ToArray());
             }
         }
 
