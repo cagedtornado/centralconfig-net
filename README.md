@@ -13,12 +13,14 @@ In your application, call:
 
 ```CSharp
 //  Connect to the service
-CentralConfigManager config = new CentralConfigManager("http://your.centralconfig.service:3000");
-ConfigItem retval = new ConfigItem();
+CentralConfigManager config = new CentralConfigManager("http://your.centralconfig.service:3000", "YourAppName");
 
-//  Call 'get' to get your config:
-var response = config.Get("YourAppName", "TheConfigNameToGet").Result;
-retval = response.Data;
+//  Call 'get' to get your configs:
+var stringVal = config.Get<string>("AnotherItem");
 
-//  retval.Value has your config value 
+//  You can even set a default value to indicate
+//  what should be returned if your config item 
+//  can't be found
+var retval = config.Get<int>("SomethingNotThere", 42);
+
 ```
