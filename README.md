@@ -13,7 +13,7 @@ In your application, call:
 
 ```CSharp
 //  Connect to the service
-CentralConfigManager config = new CentralConfigManager("http://your.centralconfig.service:3000", "YourAppName");
+var config = new CentralConfigManager("http://centralconfig-service:3000", "YourAppName");
 
 //  Call 'get' to get your configs:
 var stringVal = config.Get<string>("SomeApplicationSetting");
