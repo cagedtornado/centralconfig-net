@@ -154,6 +154,50 @@ namespace CentralConfigClient
         }
 
         /// <summary>
+        /// Get a single config
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="application">The application to get config information for</param>
+        /// <param name="name">The name of the config value to fetch</param>
+        /// <param name="defaultValue">The default value to return if the item can't be found</param>
+        /// <returns></returns>
+        public T Get<T>(string application, string name, T defaultValue = default(T))
+        {
+            T results = defaultValue;
+
+            //  By default, just use the app config file to get configuration data:
+            if(!string.IsNullOrEmpty(name))
+            {
+                try
+                {
+                    //  First get the string value:
+                    string stringvalue = Get(application, name).Result.Data.Value;
+
+                    //  Make sure the returned value isn't null or empty
+                    if(!string.IsNullOrEmpty(stringvalue))
+                    {
+                        var theType = typeof(T);
+
+                        //  If we're expecting an enumerated type...
+                        if(theType.IsEnum)
+                        {
+                            //  attempt to cast to the enum:
+                            results = (T)Enum.Parse(theType, stringvalue, true);
+                        }
+                        else
+                        {
+                            //  Otherwise, just cast to the type
+                            results = (T)Convert.ChangeType(stringvalue, theType);
+                        }
+                    }
+                }
+                catch { /* Just fall through to the defaults */ }
+            }
+
+            return results;
+        }
+
+        /// <summary>
         /// Set a config item
         /// </summary>
         /// <param name="data"></param>
