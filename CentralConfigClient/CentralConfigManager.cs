@@ -48,6 +48,11 @@ namespace CentralConfigClient
             }
         }
 
+        /// <summary>
+        /// The application to get/set information for
+        /// </summary>
+        public string Application { get; set; }
+
         #endregion
 
         #region Constructors
@@ -65,12 +70,14 @@ namespace CentralConfigClient
         /// <summary>
         /// Creates a central config manager with the given server endpoint and machine name
         /// </summary>
-        /// <param name="serverUrl"></param>
-        /// <param name="machineName"></param>
-        public CentralConfigManager(string serverUrl, string machineName)
+        /// <param name="serverUrl">The Centralconfig url</param>
+        /// <param name="application">The application to get/set information for</param>
+        /// <param name="machineName">Optional - Get configuration information for this machine name</param>
+        public CentralConfigManager(string serverUrl, string application, string machineName = "")
         {
             Uri uri = new Uri(serverUrl);
             _baseServiceUrl = uri.AbsoluteUri;
+            this.Application = application;
             _hostname = machineName;
         } 
 
@@ -131,6 +138,23 @@ namespace CentralConfigClient
         /// <summary>
         /// Get a single config item
         /// </summary>
+        /// <param name="name">The configuration key to get information for</param>
+        /// <returns></returns>
+        public async Task<ConfigResponse<ConfigItem>> Get(string name)
+        {
+            //  If we don't have an application set, throw an exception
+            if(this.Application == string.Empty)
+            {
+                throw new ArgumentException("The calling application has not been set");
+            }
+
+            //  Otherwise, just call 'get':
+            return await Get(this.Application, name);
+        }
+
+        /// <summary>
+        /// Get a single config item
+        /// </summary>
         /// <param name="application">The application to get configuration information for</param>
         /// <param name="name">The configuration key to get information for</param>
         /// <returns></returns>
@@ -151,6 +175,25 @@ namespace CentralConfigClient
             var result = await MakeAPICall<ConfigResponse<ConfigItem>>(apiUrl, postBody);
 
             return result;
+        }
+
+        /// <summary>
+        /// Get a single config
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">The name of the config value to fetch</param>
+        /// <param name="defaultValue">The default value to return if the item can't be found</param>
+        /// <returns></returns>
+        public T Get<T>(string name, T defaultValue = default(T))
+        {
+            //  If we don't have an application set, throw an exception
+            if(this.Application == string.Empty)
+            {
+                throw new ArgumentException("The calling application has not been set");
+            }
+
+            //  Otherwise, just call 'get':
+            return Get<T>(this.Application, name, defaultValue);
         }
 
         /// <summary>

@@ -72,6 +72,32 @@ namespace CentralConfigClient.Tests
         }
 
         [TestMethod]
+        public void GetSimplified_ValidParameters_ReturnsValidResult()
+        {
+            //  Arrange
+            CentralConfigManager config = new CentralConfigManager(_serviceUrl, "Formbuilder");
+
+            //  Act
+            var retval = config.Get<string>("AnotherItem");
+
+            //  Assert
+            Assert.AreEqual<string>("Test", retval);
+        }
+
+        [TestMethod]
+        public void GetSimplified_InvalidParameters_ReturnsDefaultResult()
+        {
+            //  Arrange
+            CentralConfigManager config = new CentralConfigManager(_serviceUrl, "Formbuilder");
+
+            //  Act
+            var retval = config.Get<int>("SomethingNotThere", 42);
+
+            //  Assert
+            Assert.AreEqual<int>(42, retval);
+        }
+
+        [TestMethod]
         public void GetAll_ValidApplication_ReturnsConfigItems()
         {
             //  Arrange
