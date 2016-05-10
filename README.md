@@ -16,7 +16,7 @@ In your application, call:
 CentralConfigManager config = new CentralConfigManager("http://your.centralconfig.service:3000", "YourAppName");
 
 //  Call 'get' to get your configs:
-var stringVal = config.Get<string>("AnotherItem");
+var stringVal = config.Get<string>("SomeApplicationSetting");
 
 //  You can even set a default value to indicate
 //  what should be returned if your config item 
