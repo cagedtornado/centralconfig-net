@@ -9,7 +9,7 @@ Install the [NuGet package](https://www.nuget.org/packages/CentralConfigClient/)
 Install-Package CentralConfigClient
 ```
 
-In your application, call:
+In your application:
 
 ```CSharp
 //  Connect to the service
