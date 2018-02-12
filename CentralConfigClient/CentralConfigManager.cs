@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using CentralConfigClient.Models;
+using Feature.Library;
 
 namespace CentralConfigClient
 {
@@ -38,7 +39,7 @@ namespace CentralConfigClient
         {
             get
             {
-                if(_hostname == string.Empty)
+                if(_hostname.Trim() == string.Empty)
                 {
                     //  Lookup the current hostname
                     _hostname = Environment.MachineName;
@@ -53,6 +54,31 @@ namespace CentralConfigClient
         /// </summary>
         public string Application { get; set; }
 
+        /// <summary>
+        /// The current application user (used with feature flags to see if a feature is turned on for a user)
+        /// </summary>
+        public string User { get; set; }
+
+        /// <summary>
+        /// The current application group (used with feature flags to see if a feature is turned on for a group)
+        /// </summary>
+        public string Group { get; set; }
+
+        /// <summary>
+        /// Is the current user / security context for an admin user (used with feature flags)
+        /// </summary>
+        public bool IsAdminUser { get; set; }
+
+        /// <summary>
+        /// Is the current user / security context for an internal user (used with feature flags)
+        /// </summary>
+        public bool IsInternalUser { get; set; }
+
+        /// <summary>
+        /// The current url (used with feature flags)
+        /// </summary>
+        public string Url { get; set; }
+
         #endregion
 
         #region Constructors
@@ -65,21 +91,42 @@ namespace CentralConfigClient
         {
             Uri uri = new Uri(serverUrl);
             _baseServiceUrl = uri.AbsoluteUri;
+
+            User = "";
+            Group = "";
+            IsAdminUser = false;
+            IsInternalUser = false;
         }
 
         /// <summary>
-        /// Creates a central config manager with the given server endpoint and machine name
+        /// Creates a central config manager with the given server endpoint, application and machine name
         /// </summary>
         /// <param name="serverUrl">The Centralconfig url</param>
         /// <param name="application">The application to get/set information for</param>
         /// <param name="machineName">Optional - Get configuration information for this machine name</param>
-        public CentralConfigManager(string serverUrl, string application, string machineName = "")
+        public CentralConfigManager(string serverUrl, string application, string machineName = "") : this(serverUrl)
         {
-            Uri uri = new Uri(serverUrl);
-            _baseServiceUrl = uri.AbsoluteUri;
             this.Application = application;
             _hostname = machineName;
-        } 
+        }
+
+        /// <summary>
+        /// Creates a central config manager with the given server endpoint, application and machine name and includes information for feature flags
+        /// </summary>
+        /// <param name="serverUrl">The Centralconfig url</param>
+        /// <param name="application">The application to get/set information for</param>
+        /// <param name="user">The current application user (for feature flags)</param>
+        /// <param name="group">The current application group (for feature flags)</param>
+        /// <param name="IsAdmin">Is the current user an admin user (for feature flags)</param>
+        /// <param name="IsInternal">Is the current user an internal user (for feature flags)</param>
+        /// <param name="machineName">Optional - Get configuration information for this machine name</param>
+        public CentralConfigManager(string serverUrl, string application, string user, string group, bool IsAdmin, bool IsInternal, string machineName = "") : this(serverUrl, application, machineName)
+        {
+            User = user;
+            Group = group;
+            IsAdminUser = IsAdmin;
+            IsInternalUser = IsInternal;
+        }
 
         #endregion
 
@@ -197,6 +244,39 @@ namespace CentralConfigClient
         }
 
         /// <summary>
+        /// Sees if a feature flag is enabled given the current app / user / group / etc
+        /// </summary>
+        /// <param name="name">The name of the feature flag to check</param>
+        /// <returns></returns>
+        public bool FeatureEnabled(string name)
+        {
+            bool retval = false;
+
+            //  If we don't have an application set, throw an exception
+            if (this.Application == string.Empty)
+            {
+                throw new ArgumentException("The calling application has not been set");
+            }
+
+            //  If we don't have a feature flag name, thrown an excaption:
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("The feature flag name cannot be blank");
+            }
+
+            //  Get the base string value (we expect it to be a JSON encode string):
+            string stringvalue = Get<string>(name);
+
+            //  Parse the feature flag:
+            FeatureFlag flag = stringvalue.ToFeatureFlag();
+
+            //  See if the flag should be enabled given everything we know:
+            retval = Feature.Library.Feature.IsEnabled(flag, User ?? "", Group ?? "", Url ?? "", IsInternalUser, IsAdminUser);
+
+            return retval;
+        }
+
+        /// <summary>
         /// Get a single config
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -207,8 +287,7 @@ namespace CentralConfigClient
         public T Get<T>(string application, string name, T defaultValue = default(T))
         {
             T results = defaultValue;
-
-            //  By default, just use the app config file to get configuration data:
+            
             if(!string.IsNullOrEmpty(name))
             {
                 try

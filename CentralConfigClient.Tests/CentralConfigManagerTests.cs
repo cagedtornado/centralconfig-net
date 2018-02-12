@@ -14,8 +14,9 @@ namespace CentralConfigClient.Tests
 
         [TestInitialize]
         public void Setup_Tests()
-        {
+        {           
             //  Set this to the base url for your centralconfig service
+            //  (these are really integration tests, meant to execute against a live service)
             _serviceUrl = Environment.GetEnvironmentVariable("centralconfig_test_endpoint");
         }
 

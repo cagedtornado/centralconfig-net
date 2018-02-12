@@ -51,6 +51,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CentralConfigManagerTests.cs" />
+    <Compile Include="FeatureFlagTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
