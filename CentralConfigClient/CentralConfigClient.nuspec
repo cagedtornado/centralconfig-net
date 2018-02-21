@@ -16,7 +16,7 @@
     <language>en-US</language>
     <tags>centralconfig application config configuration cluster</tags>
     <dependencies>
-      <dependency id="Feature" version="1.0.51" />
+      <dependency id="Feature" version="1.0.52" />
     </dependencies>
   </metadata>
   <files>

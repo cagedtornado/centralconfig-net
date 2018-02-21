@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CentralConfigClient.Models;
+using FeatureFlags.Library;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -6,8 +8,6 @@ using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
-using CentralConfigClient.Models;
-using Feature.Library;
 
 namespace CentralConfigClient
 {
@@ -271,7 +271,7 @@ namespace CentralConfigClient
             FeatureFlag flag = stringvalue.ToFeatureFlag();
 
             //  See if the flag should be enabled given everything we know:
-            retval = Feature.Library.Feature.IsEnabled(flag, User ?? "", Group ?? "", Url ?? "", IsInternalUser, IsAdminUser);
+            retval = Feature.IsEnabled(flag, User ?? "", Group ?? "", Url ?? "", IsInternalUser, IsAdminUser);
 
             return retval;
         }
